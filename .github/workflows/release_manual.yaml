@@ -1,0 +1,42 @@
+name: Release workflow
+
+on:
+  # Trigger the workflow only manually
+  workflow_dispatch:
+      # inputs:
+      #   version:
+      #     description: 'Action'
+      #       required: true
+      #       type: choice
+      #       options:
+      #       - version bump
+      #       - release
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [14.x]  # TODO: run for all versions
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0    # will fetch all history
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # if needed
+      - name: Run build
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: run build:quick # will run `yarn run ci` command
+        #
+      - name: Upload vsix artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: vscode-extension-file
+          path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
