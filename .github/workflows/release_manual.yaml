@@ -14,6 +14,7 @@ on:
           - release
 jobs:
   build:
+    if: inputs.job_name == 'release' && github.ref == 'refs/heads/master'
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -45,7 +46,7 @@ jobs:
     # Run version job only on pushes to the main branch. The job depends on completion of the build job.
     if: inputs.job_name == 'version' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
     outputs:
       changes: ${{ steps.changesetVersion.outputs.changes }} # map step output to job output
     steps:
@@ -63,6 +64,10 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
+      - name: Test1
+        run: npm run ci:version 2>&1
+      - name: Test2
+        run: echo $(npm run ci:version 2>&1)
       - name: Apply changesets
         id: changesetVersion
         run: |
