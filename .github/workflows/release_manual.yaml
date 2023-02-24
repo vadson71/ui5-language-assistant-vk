@@ -88,6 +88,7 @@ jobs:
 
         # Get new version number
       - name: get-npm-version
+        if: steps.changesetVersion.outputs.changes == 'true'
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
