@@ -50,6 +50,13 @@ jobs:
         with:
           fetch-depth: 0 # will fetch all history
 
+        # Get version number
+      # - name: get-npm-version
+      #   id: package-version
+      #   uses: martinbeentjes/npm-get-version-action@main
+      #   with:
+      #     path: ./packages/vscode-ui5-language-assistant
+
       # # Pure lockfile simply doesn't write the lockfile if it has changes.
       # - name: Run install
       #   uses: borales/actions-yarn@v4
@@ -67,7 +74,8 @@ jobs:
         uses: robinraju/release-downloader@v1.7
         with:
           latest: true
-          fileName: "vscode-ui5-language-assistant-4.0.5.vsix"
+          token: ${{ secrets.ACCESS_PAT }}
+          fileName: "vscode-ui5-language-assistant-*.vsix"
           out-file-path: "./packages/vscode-ui5-language-assistant-bas-ext"
 
       - name: Check
