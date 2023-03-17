@@ -124,6 +124,12 @@ jobs:
       - name: 'check artifacts'
         run: ls ./artifacts -la
 
+      # Get new version number
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: ./packages/vscode-ui5-language-assistant
       # # Publish on GitHub
       # - name: 'Publish Release on GitHub'
       #   # run: echo 'export GOPATH=~/go' >> $BASH_ENV
