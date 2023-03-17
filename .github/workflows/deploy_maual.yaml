@@ -46,7 +46,7 @@ jobs:
   #         path: ./packages/vscode-ui5-language-assistant
 
   deploy-npm:
-    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/feat/migrate-to-github-actions'
+    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
     strategy:
       matrix:
         os: [ubuntu-latest]
