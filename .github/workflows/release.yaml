@@ -1,25 +1,22 @@
 name: Release workflow
 
 on:
-  push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+    push:
+        branches: [master]  # TODO master
+    pull_request:
+        branches: [master]
 
 env:
-  GHR_PROJECT_REPONAME: ui5-language-assistant
-  GHR_PROJECT_USERNAME: SAP
+  GHR_PROJECT_REPONAME: ui5-language-assistant-vk
+  GHR_PROJECT_USERNAME: vadson71
 
 jobs:
   build:
-    if: github.repository == 'vadson71/ui5-language-assistant-vk' && contains(github.ref, 'refs/tags/v')
     strategy:
       matrix:
         os: [ubuntu-latest]
         node-version: [14.x, 16.x, 18.x]
     runs-on: ${{ matrix.os }}
-    outputs:
-      changes: ${{ steps.package-version.outputs.current-version }} # map step output to job output
-
     steps:
       - name: Checkout code repository
         uses: actions/checkout@v3
@@ -41,20 +38,72 @@ jobs:
           path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
           if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
 
-        # Get release version number
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v1
+        with:
+          args: --include-submodules lint
+
+  version:
+    # Run version job only on pushes to the main branch. The job depends on completion of the build job.
+    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [build, compliance]
+    outputs:
+      changes: ${{ steps.changesetVersion.outputs.changes }} # map step output to job output
+
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ACCESS_PAT }} # needed to auto trigger release job
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+
+      - name: Apply changesets
+        id: changesetVersion
+        run: |
+          echo ::set-output name=changes::$(npm run ci:version 2>&1 | grep -q 'No unreleased changesets found' && echo 'false' || echo 'true')
+          git status
+
+        # Get new version number
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
           path: ./packages/vscode-ui5-language-assistant
 
-  gh-delpoy:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
-    runs-on: ${{ matrix.os }}
-    needs: build
+        # Apply changes and create version tag
+      - name: Commit and push changes
+        if: steps.changesetVersion.outputs.changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_PAT }}
+        run: |
+          echo ${{ steps.package-version.outputs.current-version}}
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git status
+          git add -A
+          git status
+          git commit -m "chore: apply latest changesets" --no-verify || echo "No changesets found"
+          git log --pretty=oneline | head -n 10
+          git push 
+
+  release:
+    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.version.outputs.changes == 'false'
+    runs-on: [ubuntu-latest]
+    needs: version
     steps:
       - name: Setup Go 1.18
         uses: actions/setup-go@v3
@@ -82,53 +131,8 @@ jobs:
 
       - name: Check
         run: echo ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
-  #       ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
+        ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
 
-  deploy-npm:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
-    runs-on: ${{ matrix.os }}
-    needs: build
-
-    steps:
-      - name: Prerequisite
-        run: sudo apt-get install libxss1
-
-      - name: Checkout code repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # will fetch all history
-
-      # Pure lockfile simply doesn't write the lockfile if it has changes.
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install --pure-lockfile
-
-      # reuse stored generated vsix
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: vscode-extension-file
-          path: ./packages/vscode-ui5-language-assistant-bas-ext
-
-      - name: Check
-        run: ls ./packages/vscode-ui5-language-assistant-bas-ext -la
-
-      - name: Prepare .npmrc
-        run:
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-
-      # To help debug when lerna detects changes to the working tree and fails the publish
-      - name: Status
-        run: git status
-
-      # - name: Publish
-      # # https://github.com/lerna/lerna/issues/2788
-      #   uses: borales/actions-yarn@v4
-      #   with:
-      #     cmd: run release:publish --no-verify-access
+ 
 
       
