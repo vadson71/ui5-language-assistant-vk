@@ -4,55 +4,42 @@ on:
   # Trigger the workflow only manually
   workflow_dispatch:
 
-# env:
-#   GHR_PROJECT_REPONAME: ui5-language-assistant
-#   GHR_PROJECT_USERNAME: SAP
-
 jobs:
-  # build:
-  #   # if: github.repository == 'SAP/ui5-language-assistant' && github.ref == 'refs/heads/master'
-  #   if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
-  #   strategy:
-  #     matrix:
-  #       os: [ubuntu-latest]
-  #       node-version: [14.x]
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - name: Checkout code repository
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0 # will fetch all history
-  #     - name: Run install
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: install # will run `yarn install` command
-  #     - name: Run build
-  #       uses: borales/actions-yarn@v4
-  #       with:
-  #         cmd: ci # will run `yarn run ci` command
-
-  #     - name: Upload vsix artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: vscode-extension-file
-  #         path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
-  #         if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
-
-  #       # Get release version number
-  #     - name: get-npm-version
-  #       id: package-version
-  #       uses: martinbeentjes/npm-get-version-action@main
-  #       with:
-  #         path: ./packages/vscode-ui5-language-assistant
-
-  deploy-npm:
+  build:
+    # if: github.repository == 'SAP/ui5-language-assistant' && github.ref == 'refs/heads/master'
     if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
     strategy:
       matrix:
         os: [ubuntu-latest]
         node-version: [14.x]
     runs-on: ${{ matrix.os }}
-    # needs: build
+    steps:
+      - name: Checkout code repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # will fetch all history
+
+      - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+          
+      - name: Run build
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: ci # will run `yarn run ci` command
+
+      - name: Upload vsix artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: vscode-extension-file
+          path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
+          if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+
+  deploy-npm:
+    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
+    runs-on: [ubuntu-latest]
+    needs: build
 
     steps:
       - name: Prerequisite
