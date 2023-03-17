@@ -82,7 +82,7 @@ jobs:
           tag: v${{ steps.package-version.outputs.current-version}}
           owner: ${{env.GHR_PROJECT_USERNAME}}
           repo: ${{env.GHR_PROJECT_REPONAME}}
-          artifacts: "./artifacts/test.txt"
+          artifacts: "./artifacts/*"
           
 
       # # Publish on GitHub
