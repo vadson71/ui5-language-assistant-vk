@@ -12,6 +12,7 @@ env:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/master' # to filter out tag pushes
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -97,8 +98,9 @@ jobs:
           git add -A
           git status
           git commit -m "chore: apply latest changesets" --no-verify || echo "No changesets found"
+          git tag -a "v${{ steps.package-version.outputs.current-version}}" -m "v${{ steps.package-version.outputs.current-version}} release"
           git log --pretty=oneline | head -n 10
-          git push 
+          git push --follow-tags
 
   release:
     if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.version.outputs.changes == 'false'

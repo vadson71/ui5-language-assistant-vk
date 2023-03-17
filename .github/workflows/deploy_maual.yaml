@@ -5,41 +5,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    # if: github.repository == 'SAP/ui5-language-assistant' && github.ref == 'refs/heads/master'
-    if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout code repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # will fetch all history
+  # build:
+  #   # if: github.repository == 'SAP/ui5-language-assistant' && github.ref == 'refs/heads/master'
+  #   if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest]
+  #       node-version: [14.x]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - name: Checkout code repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0 # will fetch all history
 
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install # will run `yarn install` command
-          
-      - name: Run build
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: ci # will run `yarn run ci` command
+  #     - name: Run install
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: install # will run `yarn install` command
 
-      - name: Upload vsix artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: vscode-extension-file
-          path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
-          if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+  #     - name: Run build
+  #       uses: borales/actions-yarn@v4
+  #       with:
+  #         cmd: ci # will run `yarn run ci` command
+
+  #     - name: Upload vsix artifact
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: vscode-extension-file
+  #         path: ./packages/vscode-ui5-language-assistant/vscode-ui5-language-assistant*.vsix
+  #         if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
 
   deploy-npm:
     if: github.repository == 'vadson71/ui5-language-assistant-vk' && github.ref == 'refs/heads/master'
     runs-on: [ubuntu-latest]
-    needs: build
+    # needs: build
 
     steps:
       - name: Prerequisite
@@ -50,18 +50,25 @@ jobs:
         with:
           fetch-depth: 0 # will fetch all history
 
-      # Pure lockfile simply doesn't write the lockfile if it has changes.
-      - name: Run install
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install --pure-lockfile
+      # # Pure lockfile simply doesn't write the lockfile if it has changes.
+      # - name: Run install
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: install --pure-lockfile
 
-      # reuse stored generated vsix
-      - name: Download artifact
-        uses: actions/download-artifact@v3
+      # # reuse stored generated vsix
+      # - name: Download artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: vscode-extension-file
+      #     path: ./packages/vscode-ui5-language-assistant-bas-ext
+
+      - name: Download latest released artifact
+        uses: robinraju/release-downloader@v1.7
         with:
-          name: vscode-extension-file
-          path: ./packages/vscode-ui5-language-assistant-bas-ext
+          latest: true
+          fileName: "vscode-ui5-language-assistant-4.0.5.vsix"
+          out-file-path: "./packages/vscode-ui5-language-assistant-bas-ext"
 
       - name: Check
         run: ls ./packages/vscode-ui5-language-assistant-bas-ext -la
