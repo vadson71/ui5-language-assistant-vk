@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.12
+
+### Patch Changes
+
+- 882ff52: github release enabled
+
 ## 4.0.11
 
 ### Patch Changes
