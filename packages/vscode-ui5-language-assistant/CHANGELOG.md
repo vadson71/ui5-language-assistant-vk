@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.14
+
+### Patch Changes
+
+- 17727f4: bug fix
+
 ## 4.0.13
 
 ### Patch Changes
