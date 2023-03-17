@@ -132,8 +132,8 @@ jobs:
         run: go install github.com/tcnksm/ghr@latest
 
       - name: Check
-        run: echo ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
-        ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
+        # run: echo ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
+        run: ghr -t ${{ secrets.GITHUB_TOKEN }} -u ${{env.GHR_PROJECT_USERNAME}} -r ${{env.GHR_PROJECT_REPONAME}} -replace ${{ needs.build.outputs.current-version}} ./artifacts/
 
  
 
