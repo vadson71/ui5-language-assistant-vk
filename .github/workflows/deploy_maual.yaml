@@ -37,7 +37,7 @@ jobs:
 
       - name: Prepare .npmrc
         run:
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=test" >> ~/.npmrc
 
       # To help debug when lerna detects changes to the working tree and fails the publish
       - name: Status
@@ -47,6 +47,6 @@ jobs:
       # https://github.com/lerna/lerna/issues/2788
         uses: borales/actions-yarn@v4
         with:
-          cmd: release:publish --no-verify-access
+          cmd: release:publish
 
       
