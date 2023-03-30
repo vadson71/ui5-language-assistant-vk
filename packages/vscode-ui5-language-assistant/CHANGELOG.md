@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.9
+
+### Patch Changes
+
+- 101ce5b: fix publishing
+
 ## 4.0.8
 
 ### Patch Changes
