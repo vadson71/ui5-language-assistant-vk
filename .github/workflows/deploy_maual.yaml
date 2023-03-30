@@ -39,14 +39,25 @@ jobs:
         run:
           echo "//registry.npmjs.org/:_authToken=test" >> ~/.npmrc
 
+      # - name: Setup npmrc with npmjs.com token
+      #   run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPMJS_TOKEN }}" > .npmrc
+
       # To help debug when lerna detects changes to the working tree and fails the publish
       - name: Status
         run: git status
 
-      - name: Publish
-      # https://github.com/lerna/lerna/issues/2788
-        uses: borales/actions-yarn@v4
+      - name: 'Publish to npmjs'
+        id: changesetPublish
+        uses: changesets/action@v1.4.1
         with:
-          cmd: release:publish
+            publish: npm run ci:publish
+        env:
+            GITHUB_TOKEN: ${{ secrets.ACCESS_PAT }}
+
+      # - name: Publish
+      # # https://github.com/lerna/lerna/issues/2788
+      #   uses: borales/actions-yarn@v4
+      #   with:
+      #     cmd: release:publish
 
       
