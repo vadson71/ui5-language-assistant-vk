@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.10
+
+### Patch Changes
+
+- 4f64d61: switch to changeset publish
+
 ## 4.0.9
 
 ### Patch Changes
