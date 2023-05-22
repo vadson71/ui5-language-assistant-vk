@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { dirname, join, sep, posix } from "path";
+import { join, sep, posix } from "path";
 import globby from "globby";
 import { getLogger } from ".";
 
@@ -15,27 +15,6 @@ export function fileExists(path: string): boolean {
     return true;
   } catch (e) {
     return false;
-  }
-}
-
-/**
- * Find a file by name in parent folders starting from 'startPath'.
- *
- * @param fileName - file name to look for
- * @param startPath - path for start searching up
- * @returns - path to file name if found, otherwise undefined
- */
-export function findFileUp(
-  fileName: string,
-  startPath: string
-): string | undefined {
-  const filePath = join(startPath, fileName);
-  if (fileExists(filePath)) {
-    return filePath;
-  } else {
-    return dirname(startPath) !== startPath
-      ? findFileUp(fileName, dirname(startPath))
-      : undefined;
   }
 }
 
