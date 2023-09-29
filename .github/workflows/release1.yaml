@@ -45,16 +45,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.ACCESS_PAT }} # needed to auto trigger release job
 
-      - name: List
-        run: ls ./
-        
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
-          cmd: install --verbose # will run `yarn install` command
+          cmd: install 
 
