@@ -6,7 +6,6 @@ on:
 
 jobs:
   deploy-npm:
-    if: github.repository == 'SAP/ui5-language-assistant' && github.ref == 'refs/heads/master'
     runs-on: [ubuntu-latest]
 
     steps:
