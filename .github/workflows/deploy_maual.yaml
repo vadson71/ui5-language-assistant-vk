@@ -23,6 +23,9 @@ jobs:
           cmd: install -g
 
       - name: List folder content
+        run: cat /usr/local/lib/node_modules/lerna/package.json
+
+      - name: List folder content
         run: lerna --version
 
       
