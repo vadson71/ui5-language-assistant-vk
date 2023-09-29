@@ -27,6 +27,15 @@ jobs:
         with:
           cmd: install # will run `yarn install` command
 
+  compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v1
+        with:
+          args: --include-submodules lint
+
   version:
     # Run version job only on pushes to the main branch. The job depends on completion of the build job.
     strategy:
@@ -34,7 +43,8 @@ jobs:
         os: [ubuntu-latest]
         node-version: [14.x]
     runs-on: ${{ matrix.os }}
-    needs: []
+
+    needs: [build, compliance]
     outputs:
       changes: ${{ steps.changesetVersion.outputs.changes }} # map step output to job output
 
@@ -48,5 +58,5 @@ jobs:
       - name: Run install
         uses: borales/actions-yarn@v4
         with:
-          cmd: install 
+          cmd: install # will run `yarn install` command
 
