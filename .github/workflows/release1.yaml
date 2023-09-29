@@ -29,7 +29,11 @@ jobs:
 
   version:
     # Run version job only on pushes to the main branch. The job depends on completion of the build job.
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [14.x]
+    runs-on: ${{ matrix.os }}
     needs: []
     outputs:
       changes: ${{ steps.changesetVersion.outputs.changes }} # map step output to job output
